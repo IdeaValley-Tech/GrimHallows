@@ -32,6 +32,7 @@ import {
   legacyItems,
   parseDiceFormula,
   runEncounter,
+  runEncounterVersioned,
   statModifier,
   type CombatTurn,
   type EncounterSetup,
@@ -172,6 +173,12 @@ describe('determinism', () => {
     // Verification tooling has to know which rules produced a log; a run
     // recomputed under different rules is not the same run.
     expect(runEncounter(SEED, setup()).view.algoVersion).toBe(ENCOUNTER_ALGO_VERSION);
+  });
+
+  it('refuses to replay a run under an unknown stored version', () => {
+    expect(() => runEncounterVersioned('encounter-v999', SEED, setup())).toThrow(
+      /Unsupported encounter algorithm version/,
+    );
   });
 });
 

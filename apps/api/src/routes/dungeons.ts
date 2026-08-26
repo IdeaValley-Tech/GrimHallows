@@ -238,6 +238,7 @@ export async function registerDungeonRoutes(
       if (prepared.kind === 'not_leader') throw conflict('PARTY_LEADER_REQUIRED', 'Only the party leader can enter a dungeon.');
       if (prepared.kind === 'characters_missing') throw conflict('PARTY_CHARACTERS_REQUIRED', 'Every party member must select a character.');
       if (prepared.kind === 'members_not_ready') throw conflict('PARTY_NOT_READY', 'Every party member must be ready.');
+      if (prepared.kind !== 'ready') throw conflict('PARTY_NOT_READY', 'The party cannot enter yet.');
       const members = await Promise.all(prepared.party.members.map(async (member) => {
         const owned = await deps.characters.listForAddress(member.address);
         const character = owned.find((candidate) => candidate.contractId === member.nftContractId && candidate.tokenId === member.nftTokenId);

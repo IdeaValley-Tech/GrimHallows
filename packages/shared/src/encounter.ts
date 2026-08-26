@@ -242,6 +242,7 @@ export interface PlayerAction {
 // ---------------------------------------------------------------------------
 
 export type EncounterErrorCode =
+  | 'UNSUPPORTED_ENCOUNTER_VERSION'
   | 'UNKNOWN_MONSTER_TABLE'
   | 'EMPTY_PARTY'
   | 'UNKNOWN_POWER'
@@ -718,6 +719,24 @@ export interface EncounterResult {
   /** Every turn taken, party and monster alike, in the order they happened. */
   readonly turns: readonly CombatTurn[];
   readonly view: EncounterView;
+}
+
+/** Replay using the rules frozen on the run, never the rules current at read time. */
+export function runEncounterVersioned(
+  algoVersion: string,
+  seed: string | Uint8Array,
+  setup: EncounterSetup,
+  actions: readonly PlayerAction[] = [],
+): EncounterResult {
+  switch (algoVersion) {
+    case 'encounter-v1':
+      return runEncounter(seed, setup, actions);
+    default:
+      throw new EncounterError(
+        'UNSUPPORTED_ENCOUNTER_VERSION',
+        `Unsupported encounter algorithm version "${algoVersion}"`,
+      );
+  }
 }
 
 export function runEncounter(

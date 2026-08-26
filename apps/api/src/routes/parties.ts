@@ -38,6 +38,7 @@ export async function registerPartyRoutes(app: FastifyInstance, deps: { parties:
     if (result.kind === 'already_member') throw conflict('INVITEE_ALREADY_IN_PARTY', 'That wallet is already in a party.');
     if (result.kind === 'self') throw badRequest('CANNOT_INVITE_SELF', 'You cannot invite yourself.');
     if (result.kind === 'party_full') throw conflict('PARTY_FULL', 'The party already has four members.');
+    if (result.kind !== 'created' && result.kind !== 'existing') throw conflict('PARTY_INVITE_FAILED', 'The invite could not be created.');
     if (result.kind === 'created') await deps.notifications.create(address.trim(), 'party_invite', { partyId: id, inviteId: result.invite.id, inviterAddress: sub });
     return reply.status(result.kind === 'created' ? 201 : 200).send({ invite: result.invite });
   });
@@ -108,6 +109,7 @@ export async function registerPartyRoutes(app: FastifyInstance, deps: { parties:
     if (result.kind === 'not_leader') throw forbidden('PARTY_LEADER_REQUIRED', 'Only the party leader can start a dungeon.');
     if (result.kind === 'characters_missing') throw conflict('PARTY_CHARACTERS_REQUIRED', 'Every party member must select a character.');
     if (result.kind === 'members_not_ready') throw conflict('PARTY_NOT_READY', 'Every party member must be ready.');
+    if (result.kind !== 'ready') throw conflict('PARTY_NOT_READY', 'The party cannot enter yet.');
     return { partyId: result.party.id, members: result.party.members.map((member) => ({ address: member.address, character: { contractId: member.nftContractId!, tokenId: member.nftTokenId! } })) };
   });
 }

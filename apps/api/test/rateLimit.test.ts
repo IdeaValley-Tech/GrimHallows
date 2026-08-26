@@ -42,8 +42,10 @@ describe('MemoryRateLimiter', () => {
     const rule = DEFAULT_RATE_LIMIT_RULES['/forge'];
     expect(rule).toBeDefined();
     const limiter = new MemoryRateLimiter({ '/forge': { ...rule!, max: 1 } });
-    const first = { ...request('/forge', '127.0.0.1'), headers: { authorization: 'Bearer session-a' } } as never;
-    const second = { ...request('/forge', '127.0.0.1'), headers: { authorization: 'Bearer session-b' } } as never;
+    const firstRequest = request('/forge', '127.0.0.1') as unknown as Record<string, unknown>;
+    const secondRequest = request('/forge', '127.0.0.1') as unknown as Record<string, unknown>;
+    const first = { ...firstRequest, headers: { authorization: 'Bearer session-a' } } as never;
+    const second = { ...secondRequest, headers: { authorization: 'Bearer session-b' } } as never;
     limiter.check(first, reply() as never);
     expect(() => limiter.check(first, reply() as never)).toThrow();
     expect(() => limiter.check(second, reply() as never)).not.toThrow();

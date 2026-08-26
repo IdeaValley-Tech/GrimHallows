@@ -150,6 +150,9 @@ create table if not exists runs (
   -- honest run. Pinning the setup is what makes `runEncounter(seed, setup,
   -- actions)` reproducible for good.
   encounter_setup_json jsonb,
+  -- Frozen with the setup so future encounter rules can replay historical
+  -- runs under the version that actually produced them.
+  encounter_algo_version text not null default 'encounter-v1',
   combat_outcome text check (combat_outcome in ('win','loss')),
   fee_paid_ustx bigint,        -- operator revenue; NOT pool-related
   reward_kind text check (reward_kind in ('jackpot','loot','none')),
@@ -187,6 +190,10 @@ create table if not exists runs (
     (character_contract_id is null) = (character_token_id is null)
   )
 );
+
+-- `create table if not exists` does not modify production tables. Existing runs
+-- all predate versioned plans and therefore replay under encounter-v1.
+alter table runs add column if not exists encounter_algo_version text not null default 'encounter-v1';
 
 -- Whether the chain agreed with what we recorded.
 --

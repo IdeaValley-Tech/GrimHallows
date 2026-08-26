@@ -40,7 +40,7 @@ import {
   EncounterError,
   STATS_ALGO_VERSION,
   resolveFreeRunReward,
-  runEncounter,
+  runEncounterVersioned,
   type CombatTurn,
   type EncounterSetup,
   type EncounterView,
@@ -160,6 +160,7 @@ export class RunOracle {
       seedHash,
       seed,
       setup,
+      encounterAlgoVersion: ENCOUNTER_ALGO_VERSION,
       commitSignature: signature,
       oracleAddress: this.deps.signer.address,
       committedAt,
@@ -209,7 +210,12 @@ export class RunOracle {
     }));
     if (extraAction) actions.push(extraAction);
 
-    const { turns, view } = runEncounter(seed, run.setup, actions);
+    const { turns, view } = runEncounterVersioned(
+      run.encounterAlgoVersion,
+      seed,
+      run.setup,
+      actions,
+    );
     return {
       run,
       turns,
@@ -391,7 +397,7 @@ export class RunOracle {
         transcriptHash: current.transcriptHash,
         algoVersions: {
           dice: DICE_ALGO_VERSION,
-          encounter: ENCOUNTER_ALGO_VERSION,
+          encounter: current.run.encounterAlgoVersion,
           stats: STATS_ALGO_VERSION,
         },
         resolvedAt: resolvedAt.toISOString(),

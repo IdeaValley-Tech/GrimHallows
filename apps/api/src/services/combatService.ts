@@ -238,7 +238,7 @@ export function toVerification(view: RunView): VerificationData {
     // one implementation of "what was signed".
     transcriptHash: run.resolveSignature ? view.transcriptHash : null,
     diceAlgoVersion: DICE_ALGO_VERSION,
-    encounterAlgoVersion: ENCOUNTER_ALGO_VERSION,
+    encounterAlgoVersion: run.encounterAlgoVersion,
     statsAlgoVersion: STATS_ALGO_VERSION,
     // The row's own bytes, not the normalized reading of them, because the hash
     // published one field up was taken over these. Publishing the normalized

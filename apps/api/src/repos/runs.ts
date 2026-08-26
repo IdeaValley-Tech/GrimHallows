@@ -39,7 +39,7 @@ import type {
   RunState,
   StoredEncounterSetup,
 } from '@grimhallow/shared';
-import { normalizeStoredSetup } from '@grimhallow/shared';
+import { ENCOUNTER_ALGO_VERSION, normalizeStoredSetup } from '@grimhallow/shared';
 import { query } from '../db.js';
 
 export type { CharacterRef };
@@ -88,6 +88,7 @@ export interface RunRecord {
    * from `setup`.
    */
   readonly storedSetup: StoredEncounterSetup | null;
+  readonly encounterAlgoVersion: string;
   /** Null until the run resolves. See `oracle/seed.ts` for why. */
   readonly seedReveal: string | null;
   readonly combatOutcome: CombatOutcome | null;
@@ -260,6 +261,7 @@ export interface CommitDetails {
    */
   readonly seed: string;
   readonly setup: EncounterSetup;
+  readonly encounterAlgoVersion?: string;
   /**
    * The oracle's signature over the commit statement, and the address to check
    * it against. Both null on a paid run: the commitment is a transaction there,
@@ -477,6 +479,7 @@ interface RunRow {
   state: RunState;
   seed_hash: string | null;
   encounter_setup_json: StoredEncounterSetup | null;
+  encounter_algo_version: string;
   seed_reveal: string | null;
   combat_outcome: CombatOutcome | null;
   fee_paid_ustx: string | null;
@@ -504,7 +507,7 @@ interface RunRow {
 
 const RUN_COLUMNS = `id, dungeon_type, dungeon_id, spawn_id, party_id, created_by,
    character_contract_id, character_token_id, state, seed_hash,
-   encounter_setup_json, seed_reveal, combat_outcome, fee_paid_ustx,
+   encounter_setup_json, encounter_algo_version, seed_reveal, combat_outcome, fee_paid_ustx,
    reward_kind, reward_amount_ustx, reward_loot_token_id, reward_degraded,
    enter_tx_id, commit_tx_id, resolve_tx_id, commit_signature,
    resolve_signature, oracle_address, settlement_verified_at,
@@ -549,6 +552,7 @@ function fromRow(row: RunRow): RunRecord {
     seedHash: row.seed_hash,
     setup: normalizeStoredSetup(row.encounter_setup_json),
     storedSetup: row.encounter_setup_json,
+    encounterAlgoVersion: row.encounter_algo_version,
     seedReveal: row.seed_reveal,
     combatOutcome: row.combat_outcome,
     // Kept as a string for the same reason as `id`: it is money, and money that
@@ -684,10 +688,11 @@ export class PostgresRunStore implements RunStore {
               seed_hash = $2,
               seed_secret = $3,
               encounter_setup_json = $4,
-              commit_signature = $5,
-              oracle_address = $6,
-              commit_tx_id = $7,
-              committed_at = $8
+              encounter_algo_version = $5,
+              commit_signature = $6,
+              oracle_address = $7,
+              commit_tx_id = $8,
+              committed_at = $9
         where id = $1 and state = 'pending'
        returning ${RUN_COLUMNS}`,
       [
@@ -695,6 +700,7 @@ export class PostgresRunStore implements RunStore {
         details.seedHash,
         details.seed,
         JSON.stringify(details.setup),
+        details.encounterAlgoVersion ?? ENCOUNTER_ALGO_VERSION,
         details.commitSignature,
         details.oracleAddress,
         details.commitTxId ?? null,
@@ -979,6 +985,7 @@ export class MemoryRunStore implements RunStore {
       seedHash: null,
       setup: null,
       storedSetup: null,
+      encounterAlgoVersion: ENCOUNTER_ALGO_VERSION,
       seedReveal: null,
       combatOutcome: null,
       feePaidUstx: null,
@@ -1020,6 +1027,7 @@ export class MemoryRunStore implements RunStore {
       seedHash: null,
       setup: null,
       storedSetup: null,
+      encounterAlgoVersion: ENCOUNTER_ALGO_VERSION,
       seedReveal: null,
       combatOutcome: null,
       feePaidUstx: run.feePaidUstx,
@@ -1068,6 +1076,7 @@ export class MemoryRunStore implements RunStore {
       // can run and the two stores would disagree about what storage means.
       setup: normalizeStoredSetup(details.setup),
       storedSetup: details.setup,
+      encounterAlgoVersion: details.encounterAlgoVersion ?? ENCOUNTER_ALGO_VERSION,
       commitSignature: details.commitSignature,
       oracleAddress: details.oracleAddress,
       commitTxId: details.commitTxId ?? null,
