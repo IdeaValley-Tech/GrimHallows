@@ -33,6 +33,8 @@ export const DERIVATION_INDEX = {
    * which means it comes from the seed like everything else.
    */
   COMPOSITION_BASE: 500,
+  /** Versioned dungeon plan: wave count, enemy count, and ordered enemy picks. */
+  DUNGEON_PLAN_BASE: 600,
   /** Per-turn rolls start here; see turnIndex(). */
   TURN_BASE: 1_000,
   /** The paid-dungeon reward-table draw. */

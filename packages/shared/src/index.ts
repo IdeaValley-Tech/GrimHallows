@@ -20,4 +20,5 @@ export * from './powerUps.js';
 export * from './lootArchetypes.js';
 export * from './monsters.js';
 export * from './encounter.js';
+export * from './dungeonPlan.js';
 export * from './leaderboard.js';
