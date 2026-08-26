@@ -40,6 +40,7 @@ import {
   EncounterError,
   STATS_ALGO_VERSION,
   resolveFreeRunReward,
+  buildDungeonPlan,
   runEncounterVersioned,
   type CombatTurn,
   type EncounterSetup,
@@ -159,7 +160,7 @@ export class RunOracle {
     const committed = await this.deps.runs.commit(runId, {
       seedHash,
       seed,
-      setup,
+      setup: { ...setup, dungeonPlan: buildDungeonPlan(seed, 'free', setup.monsterTableId) },
       encounterAlgoVersion: ENCOUNTER_ALGO_VERSION,
       commitSignature: signature,
       oracleAddress: this.deps.signer.address,

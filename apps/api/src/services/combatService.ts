@@ -247,7 +247,9 @@ export function toVerification(view: RunView): VerificationData {
     // disagrees with our signature. `normalizeStoredSetup` in `shared` is the
     // declared way to turn this into something `runEncounter` accepts — and for
     // every run committed since archetypes landed it is a no-op.
-    setup: run.storedSetup,
+    // A dungeon plan is derived from the secret seed. Publishing the frozen
+    // setup before resolution would reveal every future enemy and wave.
+    setup: run.seedReveal ? run.storedSetup : null,
     actions,
   };
 }

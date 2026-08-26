@@ -77,6 +77,7 @@ import {
   powerUpMaxHpBonus,
 } from './powerUps.js';
 import type { EquippedItem } from './lootArchetypes.js';
+import type { DungeonPlan } from './dungeonPlan.js';
 import { GUARD_DEFENSE_BONUS, classPowerIds, getPower } from './powers.js';
 import { defenseDc, statModifier } from './stats.js';
 import type {
@@ -153,6 +154,8 @@ export interface PartyMemberSetup {
 export interface EncounterSetup {
   readonly monsterTableId: string;
   readonly party: readonly PartyMemberSetup[];
+  /** Present on runs committed after dungeon-plan-v1; absent on historical v1 rows. */
+  readonly dungeonPlan?: DungeonPlan;
 }
 
 /**

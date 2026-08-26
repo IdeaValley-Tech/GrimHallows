@@ -686,7 +686,9 @@ export interface VerificationData {
    * shared package reproduce every roll and the outcome, or they don't and we
    * are caught.
    *
-   * `setup` is null before commit, when there is no frozen encounter yet.
+   * `setup` is null until resolution. Modern setups contain the seed-derived
+   * dungeon plan, so publishing one before the seed reveal would disclose the
+   * future roster while the player is still choosing actions.
    *
    * WHY THE STORED SHAPE AND NOT THE RUNNABLE ONE. `setup` is the row as it was
    * written at commit time, byte for byte, because that is what

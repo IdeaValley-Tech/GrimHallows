@@ -12,6 +12,7 @@
 
 import { ClarityType, hexToCV } from '@stacks/transactions';
 import {
+  buildDungeonPlan,
   type CharacterRef,
   type EncounterSetup,
   type EquippedItem,
@@ -292,7 +293,7 @@ export class PaidEntryService {
     const committed = await this.deps.runs.commit(runId, {
       seedHash,
       seed,
-      setup,
+      setup: { ...setup, dungeonPlan: buildDungeonPlan(seed, 'paid', setup.monsterTableId) },
       commitSignature: null,
       oracleAddress: null,
       commitTxId,
